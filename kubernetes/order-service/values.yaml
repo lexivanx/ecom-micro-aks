@@ -1,0 +1,11 @@
+replicaCount: 1
+
+image:
+  repository: <your_acr_name>.azurecr.io/order-service
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 80
+
+resources: {}

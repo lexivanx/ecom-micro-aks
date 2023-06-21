@@ -1,0 +1,4 @@
+apiVersion: v2
+name: user-service
+description: Helm chart for the User Service
+version: 1.0.0

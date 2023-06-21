@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+        aadpodidbinding: order-service-identity  # This label matches the AzureIdentityBinding
+    spec:
+      containers:
+        - name: order-service
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          env:
+            - name: SECRET_USERNAME  # Secrets can be loaded from Azure Key Vault
+              valueFrom:
+                secretKeyRef:
+                  name: secret-sync-example  # Name of the Kubernetes secret (synced with Azure Key Vault)
+                  key: secret-username  # Key in the Kubernetes secret
+            - name: SECRET_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret-sync-example
+                  key: secret-password
