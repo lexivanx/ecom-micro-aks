@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "acrName": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "name": "[parameters('acrName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2017-06-01-preview",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "adminUserEnabled": true
+            }
+        }
+    ]
+}

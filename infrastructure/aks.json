@@ -1,0 +1,41 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "aksName": {
+            "type": "string"
+        },
+        "dnsPrefix": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerService/managedClusters",
+            "apiVersion": "2021-02-01",
+            "name": "[parameters('aksName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "count": 3,
+                        "vmSize": "Standard_DS2_v2",
+                        "osType": "Linux"
+                    }
+                ],
+                "linuxProfile": {
+                    "adminUsername": "azureuser",
+                    "ssh": {
+                        "publicKeys": [
+                            {
+                                "keyData": "YOUR_SSH_PUBLIC_KEY"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}
