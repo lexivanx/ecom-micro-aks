@@ -1,9 +1,17 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 import requests
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'  # Replace with Azure SQL Database URI
+
+credential = DefaultAzureCredential()
+secret_client = SecretClient(vault_url="https://<your-key-vault-name>.vault.azure.net/", credential=credential)
+
+secret = secret_client.get_secret("<your-secret-name>")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = secret.value
 db = SQLAlchemy(app)
 
 class Order(db.Model):
