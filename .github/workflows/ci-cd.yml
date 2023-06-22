@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: IaC Security Scan
+        run: checkov -d ./infrastructure
+
+      - name: Docker Security Scan
+        run: |
+          docker pull anchore/engine-cli:latest
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/engine-cli:latest anchore-cli image add <your-docker-repository>:<your-image-tag>
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/engine-cli:latest anchore-cli image wait <your-docker-repository>:<your-image-tag>
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/engine-cli:latest anchore-cli image vuln <your-docker-repository>:<your-image-tag> all
+
+      - name: Deploy to AKS
+        uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+          cluster-name: <your-aks-cluster-name>
+          resource-group: <your-resource-group>
+        run: kubectl apply -f ./kubernetes
